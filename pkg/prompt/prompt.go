@@ -2,12 +2,28 @@ package prompt
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
+	"github.com/OscarRG/go-cc/utils"
 	"github.com/eiannone/keyboard"
 )
+
+var commitTypeOptions []string
+
+func init() {
+	options, err := readCommitTypeOptions()
+
+	if err != nil {
+		// use default options
+		options = []string{"✨ feat", "🐛 fix", "💡 improvement", "📄 docs", "💅 style", "🛠️  refactor", "🎯 perf", "🧪 test", "👷 build", "🔃 ci", "🧹 chore", "🔙 revert"}
+	}
+
+	commitTypeOptions = options
+}
 
 // prompts the user for commit details.
 func PromptForCommitDetails() (commitType, commitScope, commitMessage string, err error) {
@@ -33,8 +49,15 @@ func PromptForCommitDetails() (commitType, commitScope, commitMessage string, er
 func SelectCommitType() (string, error) {
 	fmt.Println("Select a commit type:")
 
-	commitTypeOptions := []string{"✨ feat", "🐛 fix", "📄 docs", "💅 style", "🛠️  refactor", "🎯 perf", "🧪 test", "👷 build", "🔃 ci", "🧹 chore", "🔙 revert"}
 	selectedIndex := 0
+
+	err := keyboard.Open()
+	if err != nil {
+		return "", err
+	}
+	defer func() {
+		_ = keyboard.Close()
+	}()
 
 	for {
 		for i, option := range commitTypeOptions {
@@ -44,14 +67,6 @@ func SelectCommitType() (string, error) {
 			}
 			fmt.Printf("%s%s\n", marker, option)
 		}
-
-		err := keyboard.Open()
-		if err != nil {
-			return "", err
-		}
-		defer func() {
-			_ = keyboard.Close()
-		}()
 
 		_, key, err := keyboard.GetKey()
 		if err != nil {
@@ -64,6 +79,8 @@ func SelectCommitType() (string, error) {
 			selectedIndex--
 		} else if key == keyboard.KeyEnter {
 			return commitTypeOptions[selectedIndex], nil
+		} else if key == keyboard.KeyEsc || key == keyboard.KeyCtrlC {
+			return "", fmt.Errorf("selection canceled")
 		}
 
 		fmt.Print("\033[H\033[2J")
@@ -71,7 +88,7 @@ func SelectCommitType() (string, error) {
 	}
 }
 
-// allows the user to enter a commit scope.
+// allows the user to enter a commit scope
 func EnterCommitScope() (string, error) {
 	fmt.Print("Enter the commit scope (optional): ")
 	scanner := bufio.NewScanner(os.Stdin)
@@ -80,11 +97,52 @@ func EnterCommitScope() (string, error) {
 	return commitScope, scanner.Err()
 }
 
-// allows the user to enter a commit message.
+// EnterCommitMessage allows the user to enter a non-empty commit message
 func EnterCommitMessage() (string, error) {
-	fmt.Print("Enter the commit message: ")
-	scanner := bufio.NewScanner(os.Stdin)
-	scanner.Scan()
-	commitMessage := strings.TrimSpace(scanner.Text())
-	return commitMessage, scanner.Err()
+	for {
+		fmt.Print("Enter the commit message: ")
+
+		scanner := bufio.NewScanner(os.Stdin)
+		scanner.Scan()
+		commitMessage := strings.TrimSpace(scanner.Text())
+
+		if err := scanner.Err(); err != nil {
+			return "", err
+		}
+
+		if commitMessage != "" {
+			return commitMessage, nil
+		}
+
+		fmt.Println("Commit message cannot be empty. Please try again.")
+	}
+}
+
+// read commit type options from config file
+func readCommitTypeOptions() ([]string, error) {
+	homeDir := utils.GetHomeDir()
+	configFilePath := filepath.Join(homeDir, ".config", "go-cc", "config")
+
+	rootDir, err := utils.GetGitRootDir()
+	if err == nil {
+		goccFilePath := filepath.Join(rootDir, ".gocc")
+		if _, err := os.Stat(goccFilePath); err == nil {
+			configFilePath = goccFilePath
+		}
+	}
+
+	file, err := os.Open(configFilePath)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	var options []string
+
+	decoder := json.NewDecoder(file)
+	if err := decoder.Decode(&options); err != nil {
+		return nil, fmt.Errorf("error parsing content from %s: %v", configFilePath, err)
+	}
+
+	return options, nil
 }

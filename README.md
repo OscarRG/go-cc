@@ -1,15 +1,19 @@
 
 # go-cc - Conventional Commit CLI
 
-`go-cc` is a CLI tool for generating and committing conventional commits in your Git repository. It helps you follow the Conventional Commit standard for commit messages, making your project's history more organized and easier to manage.
+`go-cc` is a versatile CLI tool written in Go, designed to facilitate the generation and management of conventional commits in your Git repository. It adheres to the Conventional Commit standard for commit messages, enhancing your project's versioning and making your commit history more organized and easier to manage.
+
 
 ## Features
 
-- Interactive command-line prompts to create conventional commits.
-- Automatic generation of conventional commit messages.
-- Supports commit types, optional scopes, and commit descriptions.
-- Provides an option to review and confirm the commit before it's executed.
-- Integrates seamlessly with your Git workflow.
+- **Repository-Level Configuration**: Set default conventional commit configurations specific to your repository with ease.
+- **Interactive Command-Line Prompts**: Enjoy a user-friendly experience with interactive command-line prompts for creating conventional commits.
+- **Automatic Initialization**: When no .gocc file is found in the repository, go-cc seamlessly defaults to a predefined configuration for conventional commits.
+- **Supports Commit Types, Optional Scopes, and Commit Descriptions**: Effortlessly define commit types, optional scopes, and commit descriptions tailored to your project.
+- **Review and Confirm Commit**: go-cc provides the option to review and confirm commits before execution, ensuring a final check for changes.
+- **Seamless Git Workflow Integration**: Integrate go-cc seamlessly into your Git workflow, establishing a consistent and standardized approach to conventional commits.
+- **Easy Versioning**: Manage GitHub conventional commits effortlessly and consistently, promoting a streamlined versioning process.
+
 
 ## Installation
 
