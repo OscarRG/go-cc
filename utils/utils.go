@@ -25,3 +25,9 @@ func GetGitRootDir() (string, error) {
 	}
 	return strings.TrimSpace(string(output)), nil
 }
+
+// HasStagedChanges returns true if there are staged changes in the Git repository
+func HasStagedChanges(gitRootDir string) bool {
+	_, err := exec.Command("git", "diff", "--cached", "--exit-code").Output()
+	return err != nil
+}
