@@ -2,6 +2,8 @@ EXECUTABLE = go-cc
 
 CMD_DIR = ./cmd
 
+BIN_DIR = $(if $(GOBIN),$(GOBIN),$(GOPATH)/bin)
+
 all: build
 
 build:
@@ -10,7 +12,8 @@ build:
 
 install: build
 	@echo "Installing $(EXECUTABLE)..."
-	@mv $(EXECUTABLE) $(GOPATH)/bin/$(EXECUTABLE)
+	@mkdir -p $(BIN_DIR)
+	@mv $(EXECUTABLE) $(BIN_DIR)/$(EXECUTABLE)
 
 clean:
 	@echo "Cleaning up..."

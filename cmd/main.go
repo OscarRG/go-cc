@@ -21,6 +21,16 @@ const (
 // main is the entry point of the program. It initializes the configuration, prompts the user for commit details,
 // generates a commit message, and commits the changes based on user confirmation.
 func main() {
+
+	gitRootDir, err := utils.GetGitRootDir()
+	if err != nil {
+		log.Fatal("Error: This command must be run from within a Git repository.")
+	}
+
+	if !utils.HasStagedChanges(gitRootDir) {
+		log.Fatal("No changes staged for commit. Please stage your changes and try again.")
+	}
+
 	if err := initializeConfig(); err != nil {
 		log.Fatalf("Initialization error: %v", err)
 	}
