@@ -72,18 +72,20 @@ Here's an example of using `go-cc`:
 ```bash
 $ go-cc
 
-Select a commit type:
-➔ ✨ feat
-  🐛 fix
-  📄 docs
-  💅 style
-  🛠️  refactor
-  🎯 perf
-  🧪 test
-  👷 build
-  🔃 ci
-  🧹 chore
-  🔙 revert
+┃ Select the commit type
+┃ > ✨ feat
+┃   🐛 fix
+┃   💡 improvement
+┃   📄 docs
+┃   💅 style
+┃   🛠️  refactor
+┃   🎯 perf
+┃   🧪 test
+┃   👷 build
+┃   🔃 ci
+┃   🧹 chore
+┃   🔙 revert
+
 
 Enter the commit type (feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert): feat
 Enter an optional scope (leave empty for none): user-auth

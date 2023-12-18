@@ -1,9 +1,12 @@
 package utils
 
 import (
+	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 )
 
@@ -30,4 +33,33 @@ func GetGitRootDir() (string, error) {
 func HasStagedChanges(gitRootDir string) bool {
 	_, err := exec.Command("git", "diff", "--cached", "--exit-code").Output()
 	return err != nil
+}
+
+// read commit type options from config file
+func ReadCommitTypeOptions() ([]string, error) {
+	homeDir := GetHomeDir()
+	configFilePath := filepath.Join(homeDir, ".config", "go-cc", "config")
+
+	rootDir, err := GetGitRootDir()
+	if err == nil {
+		goccFilePath := filepath.Join(rootDir, ".gocc")
+		if _, err := os.Stat(goccFilePath); err == nil {
+			configFilePath = goccFilePath
+		}
+	}
+
+	file, err := os.Open(configFilePath)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	var options []string
+
+	decoder := json.NewDecoder(file)
+	if err := decoder.Decode(&options); err != nil {
+		return nil, fmt.Errorf("error parsing content from %s: %v", configFilePath, err)
+	}
+
+	return options, nil
 }
